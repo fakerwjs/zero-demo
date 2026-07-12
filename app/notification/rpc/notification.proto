@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package notification;
+
+option go_package = "./notification";
+
+// 通知渠道: 1-站内信 2-短信 3-邮件 4-推送
+enum Channel {
+  CHANNEL_UNSPECIFIED = 0;
+  CHANNEL_INBOX       = 1;
+  CHANNEL_SMS         = 2;
+  CHANNEL_EMAIL       = 3;
+  CHANNEL_PUSH        = 4;
+}
+
+// 通知记录
+message NotificationInfo {
+  int64   id       = 1;
+  int64   userId   = 2;
+  string  title    = 3;
+  string  content  = 4;
+  Channel channel  = 5;
+  bool    isRead   = 6;
+  int64   createAt = 7;
+}
+
+// 发送通知
+message SendReq {
+  int64   userId     = 1;
+  string  title      = 2;
+  string  content    = 3;
+  Channel channel    = 4;
+  int64   delaySec   = 5; // 延迟发送，单位秒，0表示立即发送
+}
+message SendResp {
+  int64 id      = 1;
+  bool  success = 2;
+}
+
+// 获取通知详情
+message GetNotificationReq {
+  int64 id = 1;
+}
+message GetNotificationResp {
+  NotificationInfo notification = 1;
+}
+
+// 拉取某用户的通知列表
+message ListByUserReq {
+  int64 userId = 1;
+  int32 page   = 2;
+  int32 size   = 3;
+}
+message ListByUserResp {
+  repeated NotificationInfo list  = 1;
+  int64                 total = 2;
+}
+
+service Notification {
+  rpc Send(SendReq) returns (SendResp);
+  rpc GetNotification(GetNotificationReq) returns (GetNotificationResp);
+  rpc ListByUser(ListByUserReq) returns (ListByUserResp);
+}

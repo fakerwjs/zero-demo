@@ -1,0 +1,56 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 0,
+  "time": { "from": "now-30m", "to": "now" },
+  "refresh": "10s",
+  "title": "zero-demo 微服务监控",
+  "uid": "zero-demo",
+  "version": 1,
+  "schemaVersion": 39,
+  "templating": { "list": [] },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "服务在线 (up)",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "mappings": [ { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } } ] }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "orientation": "horizontal", "colorMode": "background" },
+      "targets": [ { "expr": "up{job=~\"gateway-api|user-api|user-rpc|notification-rpc\"}", "legendFormat": "{{job}}" } ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "HTTP QPS (按 path)",
+      "gridPos": { "h": 8, "w": 9, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "expr": "sum(rate(http_server_requests_code_total[1m])) by (path)", "legendFormat": "{{path}}" } ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "HTTP P99 延迟(ms)",
+      "gridPos": { "h": 8, "w": 9, "x": 15, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_duration_ms_bucket[5m])) by (le, path))", "legendFormat": "{{path}}" } ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "RPC 服务端 QPS (按 method)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "expr": "sum(rate(rpc_server_requests_code_total[1m])) by (method)", "legendFormat": "{{method}}" } ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "RPC 服务端 P99 延迟(ms)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "expr": "histogram_quantile(0.99, sum(rate(rpc_server_requests_duration_ms_bucket[5m])) by (le, method))", "legendFormat": "{{method}}" } ]
+    }
+  ]
+}

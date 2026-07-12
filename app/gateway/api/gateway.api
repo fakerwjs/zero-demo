@@ -1,0 +1,307 @@
+syntax = "v1"
+
+info (
+	title:   "API 网关"
+	desc:    "统一入口：路由到 user.rpc / notification.rpc，处理鉴权、限流、CORS、追踪"
+	author:  "zero-demo"
+	version: "v1"
+)
+
+type (
+	RegisterReq {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Mobile   string `json:"mobile"`
+	}
+	RegisterResp {
+		Id       int64  `json:"id"`
+		Username string `json:"username"`
+		Mobile   string `json:"mobile"`
+	}
+	LoginReq {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	LoginResp {
+		Id           int64  `json:"id"`
+		AccessToken  string `json:"accessToken"`
+		AccessExpire int64  `json:"accessExpire"`
+	}
+	UserInfoResp {
+		Id       int64  `json:"id"`
+		Username string `json:"username"`
+		Mobile   string `json:"mobile"`
+		Nickname string `json:"nickname"`
+		CreateAt int64  `json:"createAt"`
+	}
+	AvatarResp {
+		Url string `json:"url"`
+	}
+	SendNotificationReq {
+		Title   string `json:"title"`
+		Content string `json:"content"`
+		Channel int32  `json:"channel"` // 1站内信 2短信 3邮件 4推送
+	}
+	SendNotificationResp {
+		Id      int64 `json:"id"`
+		Success bool  `json:"success"`
+	}
+	NotificationItem {
+		Id       int64  `json:"id"`
+		UserId   int64  `json:"userId"`
+		Title    string `json:"title"`
+		Content  string `json:"content"`
+		Channel  int32  `json:"channel"`
+		IsRead   bool   `json:"isRead"`
+		CreateAt int64  `json:"createAt"`
+	}
+	ListNotificationReq {
+		Page int32 `form:"page,default=1"`
+		Size int32 `form:"size,default=10"`
+	}
+	ListNotificationResp {
+		Total int64              `json:"total"`
+		List  []NotificationItem `json:"list"`
+	}
+	GetNotificationReq {
+		Id int64 `path:"id"`
+	}
+	GetNotificationResp {
+		Notification NotificationItem `json:"notification"`
+	}
+	ProductInfo {
+		Id          int64  `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Price       int64  `json:"price"`
+		Stock       int64  `json:"stock"`
+		Image       string `json:"image"`
+		CreateAt    int64  `json:"createAt"`
+		UpdateAt    int64  `json:"updateAt"`
+	}
+	CreateProductReq {
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Price       int64  `json:"price"`
+		Stock       int64  `json:"stock"`
+		Image       string `json:"image"`
+	}
+	CreateProductResp {
+		Id      int64 `json:"id"`
+		Success bool  `json:"success"`
+	}
+	GetProductReq {
+		Id int64 `path:"id"`
+	}
+	GetProductResp {
+		Product ProductInfo `json:"product"`
+	}
+	ListProductReq {
+		Page int32 `form:"page,default=1"`
+		Size int32 `form:"size,default=10"`
+	}
+	ListProductResp {
+		Total int64         `json:"total"`
+		List  []ProductInfo `json:"list"`
+	}
+	UpdateProductReq {
+		Id          int64  `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Price       int64  `json:"price"`
+		Stock       int64  `json:"stock"`
+		Image       string `json:"image"`
+	}
+	UpdateProductResp {
+		Success bool `json:"success"`
+	}
+	DeleteProductReq {
+		Id int64 `path:"id"`
+	}
+	DeleteProductResp {
+		Success bool `json:"success"`
+	}
+	OrderItem {
+		ProductId int64  `json:"productId"`
+		Name      string `json:"name"`
+		Price     int64  `json:"price"`
+		Quantity  int64  `json:"quantity"`
+	}
+	OrderInfo {
+		Id         int64       `json:"id"`
+		UserId     int64       `json:"userId"`
+		OrderNo    string      `json:"orderNo"`
+		TotalPrice int64       `json:"totalPrice"`
+		Status     int32       `json:"status"`
+		Items      []OrderItem `json:"items"`
+		CreateAt   int64       `json:"createAt"`
+		UpdateAt   int64       `json:"updateAt"`
+	}
+	CreateOrderReq {
+		Items []OrderItem `json:"items"`
+	}
+	CreateOrderResp {
+		Id      int64  `json:"id"`
+		OrderNo string `json:"orderNo"`
+		Success bool   `json:"success"`
+	}
+	GetOrderReq {
+		Id int64 `path:"id"`
+	}
+	GetOrderResp {
+		Order OrderInfo `json:"order"`
+	}
+	ListOrderReq {
+		Page int32 `form:"page,default=1"`
+		Size int32 `form:"size,default=10"`
+	}
+	ListOrderResp {
+		Total int64       `json:"total"`
+		List  []OrderInfo `json:"list"`
+	}
+	PaymentInfo {
+		Id            int64  `json:"id"`
+		UserId        int64  `json:"userId"`
+		OrderId       int64  `json:"orderId"`
+		OrderNo       string `json:"orderNo"`
+		Amount        int64  `json:"amount"`
+		Method        int32  `json:"method"`
+		Status        int32  `json:"status"`
+		TransactionId string `json:"transactionId"`
+		CreateAt      int64  `json:"createAt"`
+		UpdateAt      int64  `json:"updateAt"`
+	}
+	CreatePaymentReq {
+		OrderId int64 `json:"orderId"`
+		Amount  int64 `json:"amount"`
+		Method  int32 `json:"method"`
+	}
+	CreatePaymentResp {
+		Id      int64  `json:"id"`
+		PayUrl  string `json:"payUrl"`
+		Success bool   `json:"success"`
+	}
+	GetPaymentReq {
+		Id int64 `path:"id"`
+	}
+	GetPaymentResp {
+		Payment PaymentInfo `json:"payment"`
+	}
+	ListPaymentReq {
+		Page int32 `form:"page,default=1"`
+		Size int32 `form:"size,default=10"`
+	}
+	ListPaymentResp {
+		Total int64         `json:"total"`
+		List  []PaymentInfo `json:"list"`
+	}
+)
+
+// 用户：免鉴权
+@server (
+	group:  user
+	prefix: /api/v1/user
+)
+service gateway-api {
+	@handler Register
+	post /register (RegisterReq) returns (RegisterResp)
+
+	@handler Login
+	post /login (LoginReq) returns (LoginResp)
+}
+
+// 用户：需鉴权
+@server (
+	group:  user
+	prefix: /api/v1/user
+	jwt:    Auth
+)
+service gateway-api {
+	@handler UserInfo
+	get /info returns (UserInfoResp)
+
+	@handler Avatar
+	post /avatar returns (AvatarResp)
+}
+
+// 通知：需鉴权
+@server (
+	group:  notification
+	prefix: /api/v1/notification
+	jwt:    Auth
+)
+service gateway-api {
+	@handler SendNotification
+	post /send (SendNotificationReq) returns (SendNotificationResp)
+
+	@handler ListNotification
+	get /list (ListNotificationReq) returns (ListNotificationResp)
+
+	@handler GetNotification
+	get /:id (GetNotificationReq) returns (GetNotificationResp)
+}
+
+// 商品：免鉴权
+@server (
+	group:  product
+	prefix: /api/v1/product
+)
+service gateway-api {
+	@handler CreateProduct
+	post /create (CreateProductReq) returns (CreateProductResp)
+
+	@handler GetProduct
+	get /:id (GetProductReq) returns (GetProductResp)
+
+	@handler ListProduct
+	get /list (ListProductReq) returns (ListProductResp)
+}
+
+// 商品：需鉴权（管理）
+@server (
+	group:  product
+	prefix: /api/v1/product
+	jwt:    Auth
+)
+service gateway-api {
+	@handler UpdateProduct
+	put /update (UpdateProductReq) returns (UpdateProductResp)
+
+	@handler DeleteProduct
+	delete /:id (DeleteProductReq) returns (DeleteProductResp)
+}
+
+// 订单：需鉴权
+@server (
+	group:  order
+	prefix: /api/v1/order
+	jwt:    Auth
+)
+service gateway-api {
+	@handler CreateOrder
+	post /create (CreateOrderReq) returns (CreateOrderResp)
+
+	@handler GetOrder
+	get /:id (GetOrderReq) returns (GetOrderResp)
+
+	@handler ListOrder
+	get /list (ListOrderReq) returns (ListOrderResp)
+}
+
+// 支付：需鉴权
+@server (
+	group:  payment
+	prefix: /api/v1/payment
+	jwt:    Auth
+)
+service gateway-api {
+	@handler CreatePayment
+	post /create (CreatePaymentReq) returns (CreatePaymentResp)
+
+	@handler GetPayment
+	get /:id (GetPaymentReq) returns (GetPaymentResp)
+
+	@handler ListPayment
+	get /list (ListPaymentReq) returns (ListPaymentResp)
+}
+

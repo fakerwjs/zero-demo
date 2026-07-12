@@ -1,0 +1,34 @@
+Name: order.rpc
+ListenOn: ${ORDER_RPC_LISTEN:0.0.0.0:8007}
+Etcd:
+  Hosts:
+    - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+  Key: order.rpc
+
+DataSource: ${MYSQL_USER:root}:${MYSQL_PASSWORD:root123456}@tcp(${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306})/${MYSQL_DATABASE:zero_demo}?charset=utf8mb4&parseTime=true&loc=Local
+
+Cache:
+  - Host: ${REDIS_HOST:127.0.0.1}:${REDIS_PORT:6379}
+
+ProductRpc:
+  Etcd:
+    Hosts:
+      - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+    Key: product.rpc
+
+Telemetry:
+  Name: order.rpc
+  Endpoint: ${JAEGER_ENDPOINT:127.0.0.1:4317}
+  Sampler: ${JAEGER_SAMPLER:1.0}
+  Batcher: otlpgrpc
+
+Prometheus:
+  Host: ${PROMETHEUS_HOST:0.0.0.0}
+  Port: ${ORDER_RPC_PROM_PORT:9105}
+  Path: /metrics
+
+RabbitMQ:
+  Addr: ${RABBITMQ_ADDR:amqp://guest:guest@localhost:5672/}
+  Exchange: order_timeout_exchange
+  Queue: order_timeout_queue
+  RoutingKey: order_timeout_key

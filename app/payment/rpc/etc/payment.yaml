@@ -1,0 +1,28 @@
+Name: payment.rpc
+ListenOn: ${PAYMENT_RPC_LISTEN:0.0.0.0:8008}
+Etcd:
+  Hosts:
+    - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+  Key: payment.rpc
+
+DataSource: ${MYSQL_USER:root}:${MYSQL_PASSWORD:root123456}@tcp(${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306})/${MYSQL_DATABASE:zero_demo}?charset=utf8mb4&parseTime=true&loc=Local
+
+Cache:
+  - Host: ${REDIS_HOST:127.0.0.1}:${REDIS_PORT:6379}
+
+OrderRpc:
+  Etcd:
+    Hosts:
+      - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+    Key: order.rpc
+
+Telemetry:
+  Name: payment.rpc
+  Endpoint: ${JAEGER_ENDPOINT:127.0.0.1:4317}
+  Sampler: ${JAEGER_SAMPLER:1.0}
+  Batcher: otlpgrpc
+
+Prometheus:
+  Host: ${PROMETHEUS_HOST:0.0.0.0}
+  Port: ${PAYMENT_RPC_PROM_PORT:9106}
+  Path: /metrics

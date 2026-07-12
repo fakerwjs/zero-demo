@@ -1,0 +1,56 @@
+Name: notification.rpc
+ListenOn: ${NOTIFICATION_RPC_LISTEN:0.0.0.0:8005}
+Etcd:
+  Hosts:
+    - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+  Key: notification.rpc
+
+# MySQL（环境变量优先）
+DataSource: ${MYSQL_USER:root}:${MYSQL_PASSWORD:root123456}@tcp(${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306})/${MYSQL_DATABASE:zero_demo}?charset=utf8mb4&parseTime=true&loc=Local
+
+# Redis 缓存
+Cache:
+  - Host: ${REDIS_HOST:127.0.0.1}:${REDIS_PORT:6379}
+
+# RabbitMQ（发送通知异步投递）
+RabbitMQ:
+  URL: ${RABBITMQ_URL:amqp://guest:guest@127.0.0.1:5672/}
+  Queue: ${RABBITMQ_QUEUE:notification.send}
+  DelayQueue: ${RABBITMQ_DELAY_QUEUE:notification.delay}
+  DelayExchange: ${RABBITMQ_DELAY_EXCHANGE:notification.delay.exchange}
+
+# MongoDB（通知审计日志）
+Mongo:
+  URI: ${MONGO_URI:mongodb://root:root123456@127.0.0.1:27017}
+  Database: ${MONGO_DATABASE:zero_demo}
+  Collection: ${MONGO_COLLECTION:notification_log}
+
+# 真实投递网关（邮件/短信）。SMTP.Host / SMS.Endpoint 留空则仅打印日志，不真正外发。
+# 填入真实凭证即可对接真实网关（如企业邮箱 SMTP、阿里云短信 HTTP 代理）。
+Sender:
+  TestEmail: ${SENDER_TEST_EMAIL:demo@example.com}
+  TestMobile: ${SENDER_TEST_MOBILE:13800000000}
+  SMTP:
+    Host: ${SENDER_SMTP_HOST:""}
+    Port: ${SENDER_SMTP_PORT:465}
+    Username: ${SENDER_SMTP_USERNAME:""}
+    Password: ${SENDER_SMTP_PASSWORD:""}
+    From: ${SENDER_SMTP_FROM:""}
+  SMS:
+    Endpoint: ${SENDER_SMS_ENDPOINT:""}
+    AccessKey: ${SENDER_SMS_ACCESS_KEY:""}
+    SignName: ${SENDER_SMS_SIGN_NAME:zero-demo}
+    Template: ${SENDER_SMS_TEMPLATE:SMS_0001}
+
+# 链路追踪（上报到 Jaeger OTLP gRPC）
+Telemetry:
+  Name: notification.rpc
+  Endpoint: ${JAEGER_ENDPOINT:127.0.0.1:4317}
+  Sampler: ${JAEGER_SAMPLER:1.0}
+  Batcher: otlpgrpc
+
+# Prometheus 指标
+Prometheus:
+  Host: ${PROMETHEUS_HOST:0.0.0.0}
+  Port: ${NOTIFICATION_RPC_PROM_PORT:9103}
+  Path: /metrics

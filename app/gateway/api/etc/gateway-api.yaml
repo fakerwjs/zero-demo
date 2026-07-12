@@ -1,0 +1,62 @@
+Name: gateway-api
+Host: ${GATEWAY_HOST:0.0.0.0}
+Port: ${GATEWAY_PORT:8000}
+
+# JWT 鉴权（环境变量优先）
+Auth:
+  AccessSecret: ${JWT_ACCESS_SECRET:zero-demo-user-api-secret-please-change}
+  AccessExpire: ${JWT_ACCESS_EXPIRE:86400}
+
+# 后端 RPC（etcd 服务发现）
+UserRpc:
+  Etcd:
+    Hosts:
+      - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+    Key: user.rpc
+NotificationRpc:
+  Etcd:
+    Hosts:
+      - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+    Key: notification.rpc
+ProductRpc:
+  Etcd:
+    Hosts:
+      - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+    Key: product.rpc
+OrderRpc:
+  Etcd:
+    Hosts:
+      - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+    Key: order.rpc
+PaymentRpc:
+  Etcd:
+    Hosts:
+      - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+    Key: payment.rpc
+
+# 限流（每 IP）
+RateLimit:
+  Rate: ${RATE_LIMIT_RATE:50}
+  Burst: ${RATE_LIMIT_BURST:100}
+
+# MinIO 对象存储
+Minio:
+  Endpoint: ${MINIO_ENDPOINT:127.0.0.1:9000}
+  AccessKeyID: ${MINIO_ACCESS_KEY:minioadmin}
+  SecretAccessKey: ${MINIO_SECRET_KEY:minioadmin}
+  UseSSL: ${MINIO_USE_SSL:false}
+  Bucket: ${MINIO_BUCKET:avatar}
+  PublicBaseURL: ${MINIO_PUBLIC_URL:http://127.0.0.1:9000}
+
+# 链路追踪
+Telemetry:
+  Name: gateway-api
+  Endpoint: ${JAEGER_ENDPOINT:127.0.0.1:4317}
+  Sampler: ${JAEGER_SAMPLER:1.0}
+  Batcher: otlpgrpc
+
+# Prometheus 指标
+Prometheus:
+  Host: ${PROMETHEUS_HOST:0.0.0.0}
+  Port: ${GATEWAY_PROM_PORT:9100}
+  Path: /metrics

@@ -1,0 +1,26 @@
+Name: user.rpc
+ListenOn: ${USER_RPC_LISTEN:0.0.0.0:8081}
+Etcd:
+  Hosts:
+    - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+  Key: user.rpc
+
+# MySQL（环境变量优先）
+DataSource: ${MYSQL_USER:root}:${MYSQL_PASSWORD:root123456}@tcp(${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306})/${MYSQL_DATABASE:zero_demo}?charset=utf8mb4&parseTime=true&loc=Local
+
+# Redis 缓存
+Cache:
+  - Host: ${REDIS_HOST:127.0.0.1}:${REDIS_PORT:6379}
+
+# 链路追踪（上报到 Jaeger OTLP gRPC）
+Telemetry:
+  Name: user.rpc
+  Endpoint: ${JAEGER_ENDPOINT:127.0.0.1:4317}
+  Sampler: ${JAEGER_SAMPLER:1.0}
+  Batcher: otlpgrpc
+
+# Prometheus 指标
+Prometheus:
+  Host: ${PROMETHEUS_HOST:0.0.0.0}
+  Port: ${USER_RPC_PROM_PORT:9102}
+  Path: /metrics

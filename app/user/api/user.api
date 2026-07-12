@@ -1,0 +1,62 @@
+syntax = "v1"
+
+info (
+	title:   "用户服务 API"
+	desc:    "用户注册、登录、信息查询的对外 HTTP 接口"
+	author:  "zero-demo"
+	version: "v1"
+)
+
+type (
+	RegisterReq {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Mobile   string `json:"mobile"`
+	}
+	RegisterResp {
+		Id       int64  `json:"id"`
+		Username string `json:"username"`
+		Mobile   string `json:"mobile"`
+	}
+	LoginReq {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	LoginResp {
+		Id           int64  `json:"id"`
+		AccessToken  string `json:"accessToken"`
+		AccessExpire int64  `json:"accessExpire"`
+	}
+	UserInfoResp {
+		Id       int64  `json:"id"`
+		Username string `json:"username"`
+		Mobile   string `json:"mobile"`
+		Nickname string `json:"nickname"`
+		CreateAt int64  `json:"createAt"`
+	}
+)
+
+// 无需鉴权的接口
+@server (
+	group:  user
+	prefix: /api/v1/user
+)
+service user-api {
+	@handler Register
+	post /register (RegisterReq) returns (RegisterResp)
+
+	@handler Login
+	post /login (LoginReq) returns (LoginResp)
+}
+
+// 需要 JWT 鉴权的接口
+@server (
+	group:  user
+	prefix: /api/v1/user
+	jwt:    Auth
+)
+service user-api {
+	@handler UserInfo
+	get /info returns (UserInfoResp)
+}
+

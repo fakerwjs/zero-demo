@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package product;
+
+option go_package = "./product";
+
+message ProductInfo {
+  int64   id          = 1;
+  string  name        = 2;
+  string  description = 3;
+  int64   price       = 4;
+  int64   stock       = 5;
+  string  image       = 6;
+  int64   createAt    = 7;
+  int64   updateAt    = 8;
+}
+
+message CreateProductReq {
+  string  name        = 1;
+  string  description = 2;
+  int64   price       = 3;
+  int64   stock       = 4;
+  string  image       = 5;
+}
+message CreateProductResp {
+  int64   id      = 1;
+  bool    success = 2;
+}
+
+message GetProductReq {
+  int64 id = 1;
+}
+message GetProductResp {
+  ProductInfo product = 1;
+}
+
+message ListProductReq {
+  int32 page  = 1;
+  int32 size  = 2;
+}
+message ListProductResp {
+  repeated ProductInfo list  = 1;
+  int64               total = 2;
+}
+
+message UpdateProductReq {
+  int64   id          = 1;
+  string  name        = 2;
+  string  description = 3;
+  int64   price       = 4;
+  int64   stock       = 5;
+  string  image       = 6;
+}
+message UpdateProductResp {
+  bool success = 1;
+}
+
+message DeleteProductReq {
+  int64 id = 1;
+}
+message DeleteProductResp {
+  bool success = 1;
+}
+
+message DeductStockReq {
+  int64 id     = 1;
+  int64 amount = 2;
+}
+message DeductStockResp {
+  bool success = 1;
+}
+
+service Product {
+  rpc Create(CreateProductReq) returns (CreateProductResp);
+  rpc Get(GetProductReq) returns (GetProductResp);
+  rpc List(ListProductReq) returns (ListProductResp);
+  rpc Update(UpdateProductReq) returns (UpdateProductResp);
+  rpc Delete(DeleteProductReq) returns (DeleteProductResp);
+  rpc DeductStock(DeductStockReq) returns (DeductStockResp);
+}

@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package order;
+
+option go_package = "./order";
+
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_PENDING     = 1;
+  ORDER_STATUS_PAID        = 2;
+  ORDER_STATUS_SHIPPED     = 3;
+  ORDER_STATUS_COMPLETED   = 4;
+  ORDER_STATUS_CANCELLED   = 5;
+}
+
+message OrderItem {
+  int64 productId = 1;
+  string name     = 2;
+  int64 price     = 3;
+  int64 quantity  = 4;
+}
+
+message OrderInfo {
+  int64        id         = 1;
+  int64        userId     = 2;
+  string       orderNo    = 3;
+  int64        totalPrice = 4;
+  OrderStatus status     = 5;
+  repeated OrderItem items = 6;
+  int64        createAt   = 7;
+  int64        updateAt   = 8;
+}
+
+message CreateOrderReq {
+  int64        userId = 1;
+  repeated OrderItem items = 2;
+}
+message CreateOrderResp {
+  int64  id      = 1;
+  string orderNo = 2;
+  bool   success = 3;
+}
+
+message GetOrderReq {
+  int64 id = 1;
+}
+message GetOrderResp {
+  OrderInfo order = 1;
+}
+
+message ListOrderReq {
+  int64 userId = 1;
+  int32 page   = 2;
+  int32 size   = 3;
+}
+message ListOrderResp {
+  repeated OrderInfo list  = 1;
+  int64             total = 2;
+}
+
+message UpdateOrderStatusReq {
+  int64        id     = 1;
+  OrderStatus status = 2;
+}
+message UpdateOrderStatusResp {
+  bool success = 1;
+}
+
+service Order {
+  rpc Create(CreateOrderReq) returns (CreateOrderResp);
+  rpc Get(GetOrderReq) returns (GetOrderResp);
+  rpc List(ListOrderReq) returns (ListOrderResp);
+  rpc UpdateStatus(UpdateOrderStatusReq) returns (UpdateOrderStatusResp);
+}

@@ -1,0 +1,28 @@
+Name: user-api
+Host: ${USER_API_HOST:0.0.0.0}
+Port: ${USER_API_PORT:8001}
+
+# JWT 鉴权配置（环境变量优先）
+Auth:
+  AccessSecret: ${JWT_ACCESS_SECRET:zero-demo-user-api-secret-please-change}
+  AccessExpire: ${JWT_ACCESS_EXPIRE:86400}
+
+# 依赖的用户 RPC 服务（通过 etcd 服务发现）
+UserRpc:
+  Etcd:
+    Hosts:
+      - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
+    Key: user.rpc
+
+# 链路追踪（上报到 Jaeger OTLP gRPC）
+Telemetry:
+  Name: user-api
+  Endpoint: ${JAEGER_ENDPOINT:127.0.0.1:4317}
+  Sampler: ${JAEGER_SAMPLER:1.0}
+  Batcher: otlpgrpc
+
+# Prometheus 指标
+Prometheus:
+  Host: ${PROMETHEUS_HOST:0.0.0.0}
+  Port: ${USER_API_PROM_PORT:9101}
+  Path: /metrics

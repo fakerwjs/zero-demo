@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package payment;
+
+option go_package = "./payment";
+
+enum PaymentStatus {
+  PAYMENT_STATUS_UNSPECIFIED = 0;
+  PAYMENT_STATUS_PENDING     = 1;
+  PAYMENT_STATUS_SUCCESS     = 2;
+  PAYMENT_STATUS_FAILED      = 3;
+  PAYMENT_STATUS_REFUNDED    = 4;
+}
+
+enum PaymentMethod {
+  PAYMENT_METHOD_UNSPECIFIED = 0;
+  PAYMENT_METHOD_ALIPAY      = 1;
+  PAYMENT_METHOD_WECHAT      = 2;
+  PAYMENT_METHOD_BANK       = 3;
+}
+
+message PaymentInfo {
+  int64             id         = 1;
+  int64             userId     = 2;
+  int64             orderId    = 3;
+  string            orderNo    = 4;
+  int64             amount     = 5;
+  PaymentMethod     method     = 6;
+  PaymentStatus     status     = 7;
+  string            transactionId = 8;
+  int64             createAt   = 9;
+  int64             updateAt   = 10;
+}
+
+message CreatePaymentReq {
+  int64         userId     = 1;
+  int64         orderId    = 2;
+  string        orderNo    = 3;
+  int64         amount     = 4;
+  PaymentMethod method     = 5;
+}
+message CreatePaymentResp {
+  int64  id      = 1;
+  string payUrl  = 2;
+  bool   success = 3;
+}
+
+message GetPaymentReq {
+  int64 id = 1;
+}
+message GetPaymentResp {
+  PaymentInfo payment = 1;
+}
+
+message ListPaymentReq {
+  int64 userId = 1;
+  int32 page   = 2;
+  int32 size   = 3;
+}
+message ListPaymentResp {
+  repeated PaymentInfo list  = 1;
+  int64               total = 2;
+}
+
+message NotifyPaymentReq {
+  int64             id             = 1;
+  PaymentStatus     status         = 2;
+  string            transactionId  = 3;
+}
+message NotifyPaymentResp {
+  bool success = 1;
+}
+
+service Payment {
+  rpc Create(CreatePaymentReq) returns (CreatePaymentResp);
+  rpc Get(GetPaymentReq) returns (GetPaymentResp);
+  rpc List(ListPaymentReq) returns (ListPaymentResp);
+  rpc Notify(NotifyPaymentReq) returns (NotifyPaymentResp);
+}

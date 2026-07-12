@@ -1,0 +1,37 @@
+// Code scaffolded by goctl. Safe to edit.
+// goctl 1.10.1
+
+package main
+
+import (
+	"flag"
+	"fmt"
+
+	"github.com/fakerwjs/zero-demo/app/gateway/api/internal/config"
+	"github.com/fakerwjs/zero-demo/app/gateway/api/internal/handler"
+	"github.com/fakerwjs/zero-demo/app/gateway/api/internal/svc"
+
+	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/rest"
+)
+
+var configFile = flag.String("f", "etc/gateway-api.yaml", "the config file")
+
+func main() {
+	flag.Parse()
+
+	var c config.Config
+	conf.MustLoad(*configFile, &c)
+
+	// 开启 CORS
+	server := rest.MustNewServer(c.RestConf, rest.WithCors())
+	defer server.Stop()
+
+	ctx := svc.NewServiceContext(c)
+	// 全局限流中间件
+	server.Use(ctx.RateLimit)
+	handler.RegisterHandlers(server, ctx)
+
+	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	server.Start()
+}
