@@ -142,3 +142,4 @@ curl http://localhost:9080/api/v1/user/info \
 | [docs/6-代码审查报告.md](docs/6-代码审查报告.md) | 质量检查报告 |
 | [docs/7-优化需求清单.md](docs/7-优化需求清单.md) | 改进计划 |
 | [docs/8-优化实施报告.md](docs/8-优化实施报告.md) | 实施记录 |
+| [docs/9-RabbitMQ使用教程.md](docs/9-RabbitMQ使用教程.md) | RabbitMQ 详细使用教程 |
