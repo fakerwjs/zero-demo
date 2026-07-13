@@ -34,10 +34,10 @@ PaymentRpc:
       - ${ETCD_HOST:127.0.0.1}:${ETCD_PORT:2379}
     Key: payment.rpc
 
-# 限流（每 IP）
+# 限流已由 APISIX 处理，此处保留配置供直接访问时使用
 RateLimit:
-  Rate: ${RATE_LIMIT_RATE:50}
-  Burst: ${RATE_LIMIT_BURST:100}
+  Rate: ${RATE_LIMIT_RATE:1000}
+  Burst: ${RATE_LIMIT_BURST:2000}
 
 # MinIO 对象存储
 Minio:

@@ -182,6 +182,42 @@ services:
     depends_on:
       - elasticsearch
 
+  apisix:
+    image: apache/apisix:3.8.0-debian
+    container_name: zero-apisix
+    ports:
+      - "9080:9080"
+      - "9180:9180"
+    volumes:
+      - ../apisix/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+      - ../apisix/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro
+    environment:
+      - APISIX_STAND_ALONE=true
+      - ETCD_HOST=http://etcd:2379
+    depends_on:
+      - etcd
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9180/apisix/admin/routes"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  apisix-dashboard:
+    image: apache/apisix-dashboard:3.4.0-alpine
+    container_name: zero-apisix-dashboard
+    ports:
+      - "9000:9000"
+    environment:
+      - APISIX_ADMIN_API_URL=http://apisix:9180
+      - DATABASE_TYPE=sqlite
+    depends_on:
+      - apisix
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   nginx:
     image: nginx:1.25-alpine
     container_name: zero-nginx
@@ -194,6 +230,7 @@ services:
       - nginx-logs:/var/log/nginx
     depends_on:
       - prometheus
+      - apisix
 
 volumes:
   nginx-logs:
